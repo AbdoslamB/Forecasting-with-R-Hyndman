@@ -1,0 +1,758 @@
+---
+title: 'Assignment: Homework Hyndman Chapter 5 & 6 Exercises'
+author: "Abdoslam"
+date: "11/10/2021"
+---
+# Content
+* [Chapter 5](#Chapter5)
+     * [Q 1](#q15)
+     * [Q 2](#q25)
+     * [Q 3](#q35)
+     * [Q 4](#q45)
+     * [Q 5](#q55)
+     * [Q 6](#q65)
+     * [Q 7](#q75)
+     * [Q 8](#q85)
+
+* [Chapter 6](#Chapter6)
+     * [Q 1](#q16)
+     * [Q 2](#q26)
+     * [Q 3](#q36)
+     * [Q 4](#q46)
+     * [Q 5](#q56)
+     * [Q 6](#q66)
+     * [Q 7](#q76)
+     * [Q 8](#q86)
+
+
+
+
+
+<div id="Chapter5"></div>
+## Chapter 5 (Time Series Regression Models) 
+
+<div id="q15"></div>
+## Question 1
+
+Daily electricity demand for Victoria, Australia, during 2014 is contained in elecdaily. The data for the first 20 days can be obtained as follows.
+
+```{r Backages }
+library(fpp2)
+
+```
+```{r creating the dataset }
+daily20 <- head(elecdaily,20)
+str(daily20)
+```
+
+`#` Question 1(a) Plot the data and find the regression model for Demand with temperature as an explanatory variable. Why is there a positive relationship?
+
+
+```{r plotthe data & summary }
+autoplot(daily20, main="Daily electricity demand for Victoria, Australia (2014)")
+
+fit_dem <- tslm(Demand ~ Temperature, data = daily20)
+fit_dem
+summary(fit_dem)
+```
+We can see a positive relationship between the demand for electricity and the temperature. When we get closer to time 3, the demand for electricity increases, and the temperature increases too. It seems the positive relationship happens because people use the air-conditioner more when the weather is hotter, which consumes more electricity.
+
+
+`#` Question 1(b) Produce a residual plot. Is the model adequate? Are there any outliers or influential observations?
+
+```{r plot the fitting }
+plot(lm(Demand ~ Temperature, data = daily20))
+```
+
+
+```{r  checkresiduals}
+checkresiduals(fit_dem$residuals)
+```
+
+
+From the residual check plot, I think this model is adequate, their residuals aren't correlated with each other, there are some outlines, but most of the data sets fall in the range, and the residual is not skewed to the right or left.
+
+`#` Question 1(c) Use the model to forecast the electricity demand that you would expect for the next day if the maximum temperature was 15∘, and compare it with the forecast if the with maximum temperature was 35∘.Do you believe these forecasts?
+
+```{r  }
+newtemp <- data.frame(Temperature = c(15,35))
+forc.tem <- forecast(fit_dem, newdata = newtemp)
+forc.tem
+```
+
+I think these forecasts make sense because the forecasting temperature values are within the range of the data temperature.
+
+
+`#` Question 1(d) Give prediction intervals for your forecasts. The following R code will get you started:
+
+We can use the first columns in `forc.tem` as 80% intervals , and the last ones as 90%
+```{r  }
+# 80% intervals
+forc.tem$upper[, 1]
+forc.tem$lower[, 1]
+# 95% intervals
+forc.tem$upper[, 2]
+forc.tem$lower[, 2]
+
+autoplot(forc.tem, main = "Forecasting the demand in electricity")
+```
+We can observe that the forecast shows the electricity demand will increase because the electricity demand increases as time goes.
+
+`#` Question 1(e) Plot Demand vs Temperature for all of the available data in electrically. What does this say about your model?
+
+
+
+
+
+```{r  }
+elecdaily %>%
+  as.data.frame() %>%
+  ggplot(aes(x=Temperature, y=Demand)) +
+    ylab("Electricity Demand") +
+    xlab("Temperature") +
+    ggtitle("Demand vs. Temperature of all Elecdaily dataset")+
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE)
+```
+While our model forecast increases demand over time, the all data plot is different from our 20 days data plot, so that could tell our model could be good for the first 20 days, but it couldn't be good enough for the total data.
+
+
+<div id="q25"></div>
+## Question 2
+Data set`mens400`contains the winning times (in seconds) for the men’s 400 meters final in each Olympic Games from 1896 to 2016.
+
+`#` Question 2(a) Plot the winning time against the year. Describe the main features of the plot.
+
+```{r  }
+autoplot(mens400, main="Winning times for the Men's 400 meter for final Olympic Games ")
+```
+We can observe the average time for winning in the Men's 400-meter Olympic games final keeps decreasing over the years. Also, there are some missing data for some years before 1950.
+
+`#` Question 2(b) Fit a regression line to the data. Obviously the winning times have been decreasing, but at what average rate per year?
+```{r  }
+time.400 <- time(mens400)
+t <-tslm(mens400 ~ time.400, data=mens400)
+
+#  data regression line
+autoplot(mens400, 
+         main="Winning times for the Men's 400 meter Olympic Games Final", 
+         ylab="Time (Seconds)", 
+         xlab="Year") + 
+  geom_smooth(method="lm", se=FALSE, colour = "red")
+
+# The time decreasing rate
+t$coefficients[2]
+
+```
+The winning times have been decreasing at an average rate of ~ 0.065 seconds per year.
+
+
+
+`#` Question 2(c) Plot the residuals against the year. What does this indicate about the suitability of the fitted line?
+```{r  }
+cbind(Time = time.400, 
+      Residuals = t$residuals) %>%
+  as.data.frame() %>%
+ggplot(aes(x = Time, y = Residuals)) +
+    geom_point() +
+    ylab("Residuals of Regression")+
+    geom_smooth(method="lm", se=FALSE)
+```
+residual plot  shoe that the model fit well generally , we can use `checkresiduals()` to check the  model residuals in depth.
+
+`#` Question 2(d) Predict the winning time for the men’s 400 meters final in the 2020 Olympics. Give a prediction interval for your forecasts. What assumptions have you made in these calculations?
+
+```{r  }
+LM.mens400 <- lm(
+  mens400 ~ time.400, 
+  data = mens400,
+  na.action = na.exclude  # excluding the missing periods
+  )
+forc_mens400 <- forecast(
+  LM.mens400, 
+  newdata = data.frame(time.400 = 2020)
+  )
+
+forc_mens400
+
+# 80% intervals
+forc_mens400$upper[, 1]
+forc_mens400$lower[, 1]
+# 95% intervals
+forc_mens400$upper[, 2]
+forc_mens400$lower[, 2]
+```
+80% interval is ranges  from 40.45 to 43.63
+95% interval is ranges  from 39.55 to 44.53
+
+The assumption we made to take the prediction intervals was the model's residuals were normally destructed.
+
+
+<div id="q35"></div>
+## Question 3 
+Type `easter(ausbeer)` and interpret what you see.
+```{r}
+easter(ausbeer)
+str(ausbeer)
+```
+What we see in the `easter(ausbeer)` is the quarterly Australian beer production data, is range from the first quarter of 1956 to the second quarter of 2010, the are 218 quarter shoes in the data, the function  `easter(ausbeer)` give us victors of zeros and ones or fraction between 0 and 1, 1 is holidays  0 is no holidays, there is the function which means the holidays split between more than one quarter and each quarter takes fraction depending on how many holidays that hold in them.
+
+
+<div id="q45"></div>
+## Question 4
+Express y as a function of x and show that the coefficient β1 is the elasticity coefficient.
+
+
+>log(y) = β0 + β1log(x) + ε
+>
+> β1log(x) = log(y) - β0 - e
+>
+>β1 = (log(y) - β0 - e) / log(x)
+
+As we see β1 is a elasticity coefficient beaus it is a ratio of stranger changes in variable (y) to the predictor (x), so if the (x) change by one unit the (y) changes by β1.
+
+
+<div id="q55"></div>
+## Question 5
+The data set fancy concerns the monthly sales figures of a shop which opened in January 1987 and sells gifts, souvenirs, and novelties. The shop is situated on the wharf at a beach resort town in Queensland, Australia. The sales volume varies with the seasonal population of tourists. There is a large influx of visitors to the town at Christmas and for the local surfing festival, held every March since 1988. Over time, the shop has expanded its premises, range of products, and staff
+
+`#` Question 5(a) Produce a time plot of the data and describe the patterns in the graph. Identify any unusual or unexpected fluctuations in the time series.
+
+```{r  }
+autoplot(fancy, main="Sales Volume over Time", ylab="Sales")
+```
+`#` Question 5(b) Explain why it is necessary to take logarithms of these data before fitting a model.
+
+There could be heteroscedasticity across the residuals so the variance of the residuals may not be constant and we need the seasonal variations are almost same across the periods to have good fitting , so we use the a transformation like the logarithms to solve that issue.
+
+`#` Question 5(c) Use R to fit a regression model to the logarithms of these sales data with a linear trend, seasonal dummies and a “surfing festival” dummy variable.
+
+
+```{r  }
+# we making "surfing_festival" as dummy variable using time index in fancy. 1 if the year is equal to or above 1988 and the month is March.
+Time <- time(fancy)
+surfing_festival <- c()
+for(i in 1:length(Time)){
+  month <- round(12*(Time[i] - floor(Time[i]))) + 1
+  year <- floor(Time[i])
+  if(year >= 1988 & month == 3){
+    surfing_festival[i] <- 1
+  } else {
+    surfing_festival[i] <- 0
+  }
+}
+
+
+# we Use BoxCox power transformation prior to regression formula
+tslm.log.fancy <- tslm(
+  BoxCox(fancy, 0) ~ trend + season + surfing_festival
+  )
+summary(tslm.log.fancy)
+```
+`#` Question 5(d) 
+Plot the residuals against time and against the fitted values. Do these plots reveal any problems with the model?
+
+```{r  }
+autoplot(tslm.log.fancy$residuals, main="Residuals plot of fancyReg Resgression", ylab="Residuals")
+```
+The residuals still have pattern in the time, that means correlation between residuals and time winch will creates an autocorrelation  issue in our data.
+
+`#` Question 5(e) 
+Do boxplots of the residuals for each month. Does this reveal any problems with the model? 
+```{r  }
+cbind.data.frame(
+    Month = factor(
+      month.abb[round(12*(Time - floor(Time)) + 1)],
+      labels = month.abb,
+      ordered = TRUE
+    ),
+    Residuals = tslm.log.fancy$residuals
+    ) %>%
+  ggplot(aes(x = Month,
+             y = Residuals)) +
+    geom_boxplot()
+```
+
+boxplot function can't aggregate factor type data, which means it is  difficult to see any box, so The result would be looked like a scatter plot.
+
+
+`#` Question 5(f) 
+What do the values of the coefficients tell you about each variable?
+```{r  }
+tslm.log.fancy$coefficients
+```
+
+
+`#` Question 5(g) 
+What does the Breusch-Godfrey test tell you about your model?
+
+```{r  }
+checkresiduals(tslm.log.fancy)
+```
+
+The residuals could be correlated with each other. The p-value = 0.002494 lower than 0.5 thats mean residuals are not white noise so probably additional covariates are needed. Autocorrelation plot shows a significant spike at many lags.
+
+
+
+
+
+`#` Question 5(h) Regardless of your answers to the above questions, use your regression model to predict the monthly sales for 1994, 1995, and 1996. Produce prediction intervals for each of your forecasts.
+```{r  }
+future.fancy <- rep(0, 36) # 3years* 12 month =36
+for(i in 1:36){
+  if(i %% 12 == 3){
+    future.fancy[i] <- 1
+  }
+}
+# make future data as time series.
+future.fancy <- ts(data = future.fancy,
+                   start = 1994,
+                   end = c(1996, 12),
+                   frequency = 12)
+# The forecast
+fc.tslm.log.fancy <- forecast(
+  tslm.log.fancy,
+  newdata = data.frame(Time = time(future.fancy),
+                       surfing_festival = future.fancy)
+)
+# plotting hte forecast
+autoplot(fc.tslm.log.fancy)
+# show prediction interval
+fc.tslm.log.fancy
+```
+
+`#` Question 5(i) 
+Transform your predictions and intervals to obtain predictions and intervals for the raw data.
+```{r  }
+fancyTrans <- (BoxCox(fancy, 0))
+forecast(fancyTrans)
+```
+
+
+<div id="q65"></div>
+## Question 6
+The gasoline series consists of weekly data for supplies of US finished motor gasoline product, from 2 February 1991 to 20 January 2017. The units are in “million barrels per day.” Consider only the data to the end of 2004.
+
+`#` Question 6(a)Fit a harmonic regression with trend to the data. Experiment with changing the number Fourier terms. Plot the observed gasoline and fitted values and comment on what you see. 
+```{r  }
+gasoline.2004 <- window(gasoline, end=2005)
+autoplot(gasoline.2004, main="Quarterly Retail Trade Index", xlab="Year", ylab="Million barrels per day")
+```
+
+`#` Question 6(b) 
+Select the appropriate number of Fourier terms to include by minimising the AICc or CV value.
+```{r  }
+gasoltrend <- tslm(gasoline.2004 ~ trend)
+gasoltrend
+
+y <- CV(gasoltrend)
+# y$lambda.min # It doesn't work for me, I don't know how to solve it  
+CV(gasoltrend)
+```
+
+`#` Question 6(c) Check the residuals of the final model using the checkresiduals() function. Even though the residuals fail the correlation tests, the results are probably not severe enough to make much difference to the forecasts and prediction intervals. (Note that the correlations are relatively small, even though they are significant.)
+```{r  }
+tslm.fitK.2004 <- tslm(
+  gasoline.2004 ~ trend + fourier(
+    gasoline.2004, 
+    K = 10
+    )
+  )
+
+checkresiduals(tslm.fitK.2004)
+```
+
+`#` Question 6(d)
+```{r  }
+fc <- forecast(tslm.fitK.2004, 
+               newdata=data.frame(
+                 fourier(gasoline.2004,
+                         K=10,
+                         h=80)))
+
+
+
+```
+`#` Question 6(e) 
+Plot the forecasts along with the actual data for 2005. What do you find?
+```{r  }
+autoplot(fc) +
+  autolayer(window(
+    gasoline,
+    start = 2004,
+    end = 2006
+    )
+  )
+```
+
+<div id="q75"></div>
+## Question 7
+Data set huron gives the water level of Lake Huron in feet from 1875 to 1972.
+
+`#` Question 7(a)
+Plot the data and comment on its features.
+```{r  }
+autoplot(huron)
+str(huron)
+```
+`#` Question 7(b)
+Fit a linear regression and compare this to a piecewise linear trend model with a knot at 1915.
+```{r  }
+# linear regression
+tslm_huron <- tslm(huron ~ trend)
+fc.tslm.huron <- forecast(tslm_huron, h=8)
+# piecewise 
+t <- time(huron)
+t.break <- 1915
+t.P <- ts(pmax(0,t-t.break), start=1875)
+tslm.pw <- tslm(huron ~ t + t.P)
+  t_new <- t[length(t)]+seq(8)
+  t.p.new <- t.P[length(t.P)]+seq(8)
+  
+newdata <- cbind(t=t_new,
+                 t.P=t.p.new) %>%
+  as.data.frame()
+
+
+fc.tslm.pw.huron <- forecast(
+  tslm.pw,
+  newdata = newdata
+  )
+```
+
+
+`#` Question 7(c) 
+Generate forecasts from these two models for the period up to 1980 and comment on these.
+```{r  }
+autoplot(huron)+
+  autolayer(fc.tslm.huron, series='Linear', PI=FALSE)+
+  autolayer(fc.tslm.pw.huron, series='Piecewise',PI=FALSE)
+```
+
+It seems that  the spline model didn't catch the trend well.However the Piecewise seems doing much better than the linear regression.
+
+
+
+<div id="Chapter6"></div>
+## Chapter 6 (Time Series Decompositon) 
+
+<div id="q16"></div>
+## Question 1
+Show that a 3×5 MA is equivalent to a 7-term weighted moving average with weights of 0.067, 0.133, 0.200, 0.200, 0.200, 0.133, and 0.067.
+
+Centered moving averages can be smoothed by another moving average. This creates a double moving average. In the case of a 3x5 moving average, this signifies a 3 moving average of a 5 moving average. 
+
+Weights = c(0.067, 0.133, 0.200, 0.200, 0.200, 0.133, 0.067)
+
+ 3x5 MA = [((Y1 + Y2 + Y3 + Y4 + Y5)/5) + ((Y2 + Y3 + Y4 + Y5 + Y6)/5) + ((Y3 + Y4 + Y5 + Y6 + Y7)/5)] / 3
+
+Plugging in these values proves that the 3x5 moving average is equal to a 7-term weighted moving average
+
+
+<div id="q26"></div>
+## Question 2
+The plastics data set consists of the monthly sales (in thousands) of product A for a plastics manufacturer for five years.
+
+`#` Question 2 (a)
+Plot the time series of sales of product A. Can you identify seasonal fluctuations and/or a trend-cycle?
+```{r  }
+autoplot(plastics)
+```
+
+The  data plot shows that there are seasonal fluctuations and there are some upward trend in the plot.
+
+
+`#` Question 2 (b)
+Use a classical multiplicative decomposition to calculate the trend-cycle and seasonal indices
+```{r  }
+decompose.plastics <- plastics %>% decompose(type="multiplicative", ) %>%
+  autoplot() + xlab("Year") +
+  ggtitle("Monthly sales of Product A")
+
+decompose.plastics
+```
+`#` Question 2 (c)
+Yes , the results support the graphical interpretation from part a , we can see seasonal positive trends in the data  
+
+
+`#` Question 2 (d)
+Compute and plot the seasonally adjusted data.
+```{r  }
+autoplot(plastics, main="Monthly sales of Product A", ylab="Sales (Thousands)", xlab="Year") + autolayer(snaive(plastics, h=30), series="Seasonal Naïve", PI=FALSE) + autolayer(naive(plastics, h=30), series="Naïve", PI=FALSE) + autolayer(rwf(plastics, h=30), series="Drift", PI=FALSE)
+```
+
+
+
+`#` Question 2 (e)
+```{r  }
+plastics_new <- plastics
+plastics_new[20] <- plastics_new[20] + 500
+decompose_plastics_new <- decompose(plastics_new, type = "multiplicative"
+                                    )
+autoplot(plastics_new, series = "Data") +
+  autolayer(trendcycle(decompose_plastics_new), 
+            series = "Trend") +
+  
+  autolayer(seasadj(decompose_plastics_new),
+            series = "Seasonally Adjusted") +
+  xlab("Year") + 
+  ylab(" Sales amount per month") +
+  ggtitle("Sales of plastic projuct with outlier") +
+  scale_color_manual(values=c("gray", "blue", "red"),
+                     breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+The outlier has small effect in the trend but also it has huge effect in the adjusted data
+
+
+`#` Question 2 (F)
+Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+```{r  }
+plastics_new[55] <- plastics_new[55] + 500
+decompose_plastics_new <- decompose(
+  plastics_new,
+  type = "multiplicative"
+  )
+autoplot(plastics_new, series = "Data") +
+  autolayer(trendcycle(decompose_plastics_new),
+            series = "Trend") +
+  autolayer(seasadj(decompose_plastics_new),
+            series = "Seasonally Adjusted") +
+  xlab("Year") + ylab("Monthly Sales amount") +
+  ggtitle("Sales of plastic projuct with outliers") +
+  scale_color_manual(values=c("gray", "blue", "red"),
+                     breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+the effect to trend decreases when the outlier been more closer to the end in the plot. 
+
+
+<div id="q36"></div>
+## Question 3
+Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose the series using X11. Does it reveal any outliers, or unusual features that you had not noticed previously?
+
+
+
+
+```{r  }
+library(seasonal)
+library(readr)
+tute1 <- read_csv("C:/Users/baaba/Downloads/tute1.csv")
+
+ts.retail <- ts(tute1[,"Sales"], 
+                frequency=12, 
+                start=c(1982,4))
+
+autoplot(ts.retail)
+
+retailx11 <- seas(ts.retail, x11="")
+
+autoplot(retailx11, main=" Decomposition on Monthly Retail Sales", xlab="Year")
+```
+
+There are some big outliers especially the huge one around 1987 and at the end of 1989
+
+
+<div id="q46"></div>
+## Question 4
+Figures 6.16 and 6.17 show the result of decomposing the number of persons in the civilian labour force in Australia each month from February 1978 to August 1995.
+
+`#` Question 4 (a)
+Write about 3–5 sentences describing the results of the decomposition. Pay particular attention to the scales of the graphs in making your interpretation.
+
+The Seasonality chart shows solid seasonal trends in consecutively. The secon chart was interesting where we can we can observe a large increase in July and a significant decrease in March.
+
+`#` Question 4 (b)
+Is the recession of 1991/1992 visible in the estimated components?
+
+
+There are highly change in these data period , if these data was estimated usually it will follow the other data and is will appear more smoother than what we see.
+
+
+<div id="q56"></div>
+## Question 5
+This exercise uses the cangas data (monthly Canadian gas production in billions of cubic metres, January 1960 – February 2005).
+
+`#` Question 5 (a)
+Plot the data using autoplot(), ggsubseriesplot() and ggseasonplot() to look at the effect of the changing seasonality over time. What do you think is causing it to change so much?
+```{r  }
+autoplot(cangas, main="Monthly Gas Production", ylab="Gas Production", xlab="Year")
+
+ggsubseriesplot(cangas, main="Monthly Gas Production", ylab="Gas Production")
+
+ggseasonplot(cangas, main="Seasonal Plot: Monthly Gas Production", ylab="Gas Production")
+```
+When we look at the oil production , we can see that the demand increases closer to the winter months , and that could due to the high use of heating.
+
+
+
+`#` Question 5 (b)
+Do an STL decomposition of the data. You will need to choose s.window to allow for the changing shape of the seasonal component.
+```{r  }
+stl_cangas <- stl(cangas, s.window = 13, 
+                  robust = TRUE)
+# Show each STL decomposed component
+autoplot(stl_cangas) 
+
+```
+we can see that the seasonality increased in 1980s but it decreases after that in in 1990s 
+
+<div id="q66"></div>
+## Question 6
+
+`#` Question 6 (a)
+Use an STL decomposition to calculate the trend-cycle and seasonal indices. (Experiment with having fixed or changing seasonality.)
+
+```{r  }
+#fixed seasonality
+stl.fixed.st <- stl(bricksq, 
+                          s.window = "periodic",
+                          robust = TRUE)
+autoplot(stl.fixed.st) +
+  ggtitle("production data decomposed with fixed seasonality")
+
+#  changing seasonality
+stl.changing.st <- stl(bricksq,
+                             s.window = 5,
+                             robust = TRUE)
+
+autoplot(stl.changing.st) +
+  ggtitle(" production data decomposed with changing seasonality")
+```
+
+`#` Question 6 (b)
+Compute and plot the seasonally adjusted data.
+
+```{r  }
+autoplot(bricksq, series = "Data") +
+  autolayer(trendcycle(stl.fixed.st),
+            series = "Trend-cycle") +
+  autolayer(seasadj(stl.fixed.st),
+            series = "Seasonally Adjusted Data") +
+  ggtitle("Quarterly clay brick production in Australia",
+          subtitle = "-decomposed by STL with fixed seasonality") +
+  scale_color_manual(values = c("gray", "red", "blue"),
+                     breaks = c("Data", "Trend-cycle", "Seasonally Adjusted Data"))
+# plot data which are decomposed  with changing seasonality
+autoplot(bricksq, series = "Data") +
+  autolayer(trendcycle(stl.changing.st),
+            series = "Trend-cycle") +
+  autolayer(seasadj(stl.changing.st),
+            series = "Seasonally Adjusted Data") +
+  ggtitle("Quarterly clay brick production in Australia",
+          subtitle = "-decomposed by STL with changing seasonality") +
+  scale_color_manual(values = c("gray", "red", "blue"),
+                     breaks = c("Data", "Trend-cycle", "Seasonally Adjusted Data"))
+```
+
+`#` Question 6 (c)
+Use a naïve method to produce forecasts of the seasonally adjusted data.
+ction", xlab="Year")+ autolayer(naive(bricksq, h=30), series="Naïve", PI=FALSE)
+
+
+```{r }
+stl.fixed.st %>% seasadj() %>% naive() %>% autoplot() + 
+  ggtitle(label = "Naive forecast of seasonally adjusted brick data",
+          subtitle = "after STL decomposition with fixed seasonality")
+stl.changing.st %>% seasadj() %>% naive() %>% autoplot() + 
+  ggtitle(label = "Naive forecast of seasonally adjusted brick data",
+          subtitle = "after STL decomposition with changing seasonality")
+```
+
+The range of the decomposed  with changing seasonalit alsmost similer to the decomposed  with fixed seasonality.
+
+`#` Question 6 (d)
+Use stlf() to reseasonalise the results, giving forecasts for the original data.
+```{r  }
+brick.t <- stlf(bricksq)
+brick.t
+autoplot(brick.t)
+```
+
+`#` Question 6 (e)
+Do the residuals look uncorrelated?
+```{r  }
+checkresiduals(brick.t)
+```
+residuals are correlated with each other 
+
+`#` Question 6 (f)
+Repeat with a robust STL decomposition. Does it make much difference?
+```{r  }
+brick.tt <-  stlf(bricksq, robust = TRUE)
+autoplot(brick.tt)
+checkresiduals(brick.tt)
+```
+
+we can see there are still correlation  even with the robust
+
+
+`#` Question 6 (g)
+Compare forecasts from`stlf()`with those from`snaive()`,using a test set comprising the last 2 years of data. Which is better?
+```{r  }
+trainset.brick <- subset(bricksq, 
+                        end = length(bricksq) - 8)
+testset.brick <- subset(bricksq,
+                        start = length(bricksq) - 7)
+snaive.brick <- snaive(trainset.brick)
+stlf.brick <- stlf(trainset.brick, robust = TRUE)
+
+
+snaive.brick
+stlf.brick
+```
+
+
+```{r  }
+autoplot(bricksq, series = "Original data") +
+  geom_line(size = 1) +
+  autolayer(stlf.brick, PI = FALSE, size = 1,
+            series = "stlf") +
+  autolayer(snaive.brick, PI = FALSE, size = 1,
+            series = "snaive") +
+  scale_color_manual(values = c("gray50", "blue", "red"),
+                     breaks = c("Original data", "stlf", "snaive")) +
+  scale_x_continuous(limits = c(1990, 1994.5)) +
+  scale_y_continuous(limits = c(300, 600)) +
+  guides(colour = guide_legend(title = "Data")) +
+  ggtitle("Forecast stlf and snaive functions") +
+  annotate(
+    "rect",
+    xmin=1992.75,xmax=1994.5,ymin=-Inf,ymax=Inf,
+    fill="lightgreen",alpha = 0.3
+    )
+```
+
+<div id="q76"></div>
+## Question 7
+Use`stlf()`to produce forecasts of the`writing`series with either`method="naive"`or`method="rwdrift"`,whichever is most appropriate. Use the`lambda`argument if you think a Box-Cox transformation is required.
+
+I think is it would be better to use`rwdrift`method to forecast non-seasonal component
+```{r  }
+
+writingBC <- stlf(writing, 
+                  method='rwdrift', 
+                  robust=TRUE, 
+                  lambda = BoxCox.lambda(writing)
+                  
+                  )
+autoplot(writingBC)
+
+```
+
+
+<div id="q86"></div>
+## Question 8
+Use`stlf()`to produce forecasts of the`fancy`series with either`method="naive"`or`method="rwdrift"`,whichever is most appropriate. Use the`lambda`argument if you think a Box-Cox transformation is required.
+
+```{r  }
+stlf.fancy <- stlf(fancy,
+                   robust = TRUE,
+                   lambda = BoxCox.lambda(fancy),
+                   method = "rwdrift")
+autoplot(stlf.fancy)
+```
+
+because of the Box-Cox transformation the intervals increase increases highly 
+
+
