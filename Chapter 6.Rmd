@@ -1,0 +1,310 @@
+# Chapter 6 (Time Series Decompositon) 
+
+## Question 1
+Show that a 3×5 MA is equivalent to a 7-term weighted moving average with weights of 0.067, 0.133, 0.200, 0.200, 0.200, 0.133, and 0.067.
+
+# Centered moving averages can be smoothed by another moving average. This creates a double moving average. In the case of a 3x5 moving average, this signifies a 3 moving average of a 5 moving average. 
+
+# Weights = c(0.067, 0.133, 0.200, 0.200, 0.200, 0.133, 0.067)
+
+# 3x5 MA = [((Y1 + Y2 + Y3 + Y4 + Y5)/5) + ((Y2 + Y3 + Y4 + Y5 + Y6)/5) + ((Y3 + Y4 + Y5 + Y6 + Y7)/5)] / 3
+
+#Plugging in these values proves that the 3x5 moving average is equal to a 7-term weighted moving average
+
+## Question 2
+The plastics data set consists of the monthly sales (in thousands) of product A for a plastics manufacturer for five years.
+
+`#` Question 2 (a)
+Plot the time series of sales of product A. Can you identify seasonal fluctuations and/or a trend-cycle?
+```{r  }
+autoplot(plastics)
+```
+
+The  data plot shows that there are seasonal fluctuations and there are some upward trend in the plot.
+
+
+`#` Question 2 (b)
+Use a classical multiplicative decomposition to calculate the trend-cycle and seasonal indices
+```{r  }
+decompose.plastics <- plastics %>% decompose(type="multiplicative",  series="Trend") %>%
+  autoplot() + xlab("Year") +
+  ggtitle("Monthly sales of Product A")
+
+decompose.plastics
+```
+`#` Question 2 (c)
+Yes , the results support the graphical interpretation from part a , we can see seasonal positive trends in the data  
+
+
+`#` Question 2 (d)
+Compute and plot the seasonally adjusted data.
+```{r  }
+autoplot(plastics, main="Monthly sales of Product A", ylab="Sales (Thousands)", xlab="Year") + autolayer(snaive(plastics, h=30), series="Seasonal Naïve", PI=FALSE) + autolayer(naive(plastics, h=30), series="Naïve", PI=FALSE) + autolayer(rwf(plastics, h=30), series="Drift", PI=FALSE)
+```
+
+
+
+`#` Question 2 (e)
+```{r  }
+plastics_new <- plastics
+plastics_new[20] <- plastics_new[20] + 500
+decompose_plastics_new <- decompose(plastics_new, type = "multiplicative"
+                                    )
+autoplot(plastics_new, series = "Data") +
+  autolayer(trendcycle(decompose_plastics_new), 
+            series = "Trend") +
+  
+  autolayer(seasadj(decompose_plastics_new),
+            series = "Seasonally Adjusted") +
+  xlab("Year") + 
+  ylab(" Sales amount per month") +
+  ggtitle("Sales of plastic projuct with outlier") +
+  scale_color_manual(values=c("gray", "blue", "red"),
+                     breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+The outlier has small effect in the trend but also it has huge effect in the adjusted data
+
+
+`#` Question 2 (F)
+Does it make any difference if the outlier is near the end rather than in the middle of the time series?
+```{r  }
+plastics_new[55] <- plastics_new[55] + 500
+decompose_plastics_new <- decompose(
+  plastics_new,
+  type = "multiplicative"
+  )
+autoplot(plastics_new, series = "Data") +
+  autolayer(trendcycle(decompose_plastics_new),
+            series = "Trend") +
+  autolayer(seasadj(decompose_plastics_new),
+            series = "Seasonally Adjusted") +
+  xlab("Year") + ylab("Monthly Sales amount") +
+  ggtitle("Sales of plastic projuct with outliers") +
+  scale_color_manual(values=c("gray", "blue", "red"),
+                     breaks=c("Data", "Seasonally Adjusted", "Trend"))
+```
+
+the effect to trend decreases when the outlier been more closer to the end in the plot. 
+
+## Question 3
+Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose the series using X11. Does it reveal any outliers, or unusual features that you had not noticed previously?
+
+
+
+
+```{r  }
+library(seasonal)
+library(readr)
+tute1 <- read_csv("C:/Users/baaba/Downloads/tute1.csv")
+
+ts.retail <- ts(tute1[,"Sales"], 
+                frequency=12, 
+                start=c(1982,4))
+
+autoplot(ts_retail)
+
+retailx11 <- seas(ts.retail, x11="")
+
+autoplot(retailx11, main=" Decomposition on Monthly Retail Sales", xlab="Year")
+```
+
+There are some big outliers especially the huge one around 1987 and at the end of 1989
+
+## Question 4
+Figures 6.16 and 6.17 show the result of decomposing the number of persons in the civilian labour force in Australia each month from February 1978 to August 1995.
+
+`#` Question 4 (a)
+Write about 3–5 sentences describing the results of the decomposition. Pay particular attention to the scales of the graphs in making your interpretation.
+
+The Seasonality chart shows solid seasonal trends in consecutively. The secon chart was interesting where we can we can observe a large increase in July and a significant decrease in March.
+
+`#` Question 4 (b)
+Is the recession of 1991/1992 visible in the estimated components?
+
+
+There are highly change in these data period , if these data was estimated usually it will follow the other data and is will appear more smoother than what we see.
+
+
+## Question 5
+This exercise uses the cangas data (monthly Canadian gas production in billions of cubic metres, January 1960 – February 2005).
+
+`#` Question 5 (a)
+Plot the data using autoplot(), ggsubseriesplot() and ggseasonplot() to look at the effect of the changing seasonality over time. What do you think is causing it to change so much?
+```{r  }
+autoplot(cangas, main="Monthly Gas Production", ylab="Gas Production", xlab="Year")
+
+ggsubseriesplot(cangas, main="Monthly Gas Production", ylab="Gas Production")
+
+ggseasonplot(cangas, main="Seasonal Plot: Monthly Gas Production", ylab="Gas Production")
+```
+When we look at the oil production , we can see that the demand increases closer to the winter months , and that could due to the high use of heating.
+
+
+
+`#` Question 5 (b)
+Do an STL decomposition of the data. You will need to choose s.window to allow for the changing shape of the seasonal component.
+```{r  }
+stl_cangas <- stl(cangas, s.window = 13, 
+                  robust = TRUE)
+# Show each STL decomposed component
+autoplot(stl_cangas) 
+
+```
+we can see that the seasonality increased in 1980s but it decreases after that in in 1990s 
+
+## Question 6
+
+`#` Question 6 (a)
+Use an STL decomposition to calculate the trend-cycle and seasonal indices. (Experiment with having fixed or changing seasonality.)
+
+```{r  }
+#fixed seasonality
+stl.fixed.st <- stl(bricksq, 
+                          s.window = "periodic",
+                          robust = TRUE)
+autoplot(stl.fixed.st) +
+  ggtitle("production data decomposed with fixed seasonality")
+
+#  changing seasonality
+stl.changing.st <- stl(bricksq,
+                             s.window = 5,
+                             robust = TRUE)
+
+autoplot(stl.changing.st) +
+  ggtitle(" production data decomposed with changing seasonality")
+```
+
+`#` Question 6 (b)
+Compute and plot the seasonally adjusted data.
+
+```{r  }
+autoplot(bricksq, series = "Data") +
+  autolayer(trendcycle(stl.fixed.st),
+            series = "Trend-cycle") +
+  autolayer(seasadj(stl.fixed.st),
+            series = "Seasonally Adjusted Data") +
+  ggtitle("Quarterly clay brick production in Australia",
+          subtitle = "-decomposed by STL with fixed seasonality") +
+  scale_color_manual(values = c("gray", "red", "blue"),
+                     breaks = c("Data", "Trend-cycle", "Seasonally Adjusted Data"))
+# plot data which are decomposed  with changing seasonality
+autoplot(bricksq, series = "Data") +
+  autolayer(trendcycle(stl.changing.st),
+            series = "Trend-cycle") +
+  autolayer(seasadj(stl.changing.st),
+            series = "Seasonally Adjusted Data") +
+  ggtitle("Quarterly clay brick production in Australia",
+          subtitle = "-decomposed by STL with changing seasonality") +
+  scale_color_manual(values = c("gray", "red", "blue"),
+                     breaks = c("Data", "Trend-cycle", "Seasonally Adjusted Data"))
+```
+
+`#` Question 6 (c)
+Use a naïve method to produce forecasts of the seasonally adjusted data.
+ction", xlab="Year")+ autolayer(naive(bricksq, h=30), series="Naïve", PI=FALSE)
+
+
+```{r }
+stl.fixed.st %>% seasadj() %>% naive() %>% autoplot() + 
+  ggtitle(label = "Naive forecast of seasonally adjusted brick data",
+          subtitle = "after STL decomposition with fixed seasonality")
+stl.changing.st %>% seasadj() %>% naive() %>% autoplot() + 
+  ggtitle(label = "Naive forecast of seasonally adjusted brick data",
+          subtitle = "after STL decomposition with changing seasonality")
+```
+
+The range of the decomposed  with changing seasonalit alsmost similer to the decomposed  with fixed seasonality.
+
+`#` Question 6 (d)
+Use stlf() to reseasonalise the results, giving forecasts for the original data.
+```{r  }
+brick.t <- stlf(bricksq)
+brick.t
+autoplot(brick.t)
+```
+
+`#` Question 6 (e)
+Do the residuals look uncorrelated?
+```{r  }
+checkresiduals(brick.t)
+```
+residuals are correlated with each other 
+
+`#` Question 6 (f)
+Repeat with a robust STL decomposition. Does it make much difference?
+```{r  }
+brick.tt <-  stlf(bricksq, robust = TRUE)
+autoplot(brick.tt)
+checkresiduals(brick.tt)
+```
+
+we can see there are still correlation  even with the robust
+
+
+`#` Question 6 (g)
+Compare forecasts from`stlf()`with those from`snaive()`,using a test set comprising the last 2 years of data. Which is better?
+```{r  }
+trainset.brick <- subset(bricksq, 
+                        end = length(bricksq) - 8)
+testset.brick <- subset(bricksq,
+                        start = length(bricksq) - 7)
+snaive.brick <- snaive(trainset.brick)
+stlf.brick <- stlf(trainset.brick, robust = TRUE)
+
+
+snaive_brick
+stlf.brick
+```
+
+
+```{r  }
+autoplot(bricksq, series = "Original data") +
+  geom_line(size = 1) +
+  autolayer(stlf_brick_part, PI = FALSE, size = 1,
+            series = "stlf") +
+  autolayer(snaive_brick, PI = FALSE, size = 1,
+            series = "snaive") +
+  scale_color_manual(values = c("gray50", "blue", "red"),
+                     breaks = c("Original data", "stlf", "snaive")) +
+  scale_x_continuous(limits = c(1990, 1994.5)) +
+  scale_y_continuous(limits = c(300, 600)) +
+  guides(colour = guide_legend(title = "Data")) +
+  ggtitle("Forecast stlf and snaive functions") +
+  annotate(
+    "rect",
+    xmin=1992.75,xmax=1994.5,ymin=-Inf,ymax=Inf,
+    fill="lightgreen",alpha = 0.3
+    )
+```
+
+## Question 7
+Use`stlf()`to produce forecasts of the`writing`series with either`method="naive"`or`method="rwdrift"`,whichever is most appropriate. Use the`lambda`argument if you think a Box-Cox transformation is required.
+
+I think is it would be better to use`rwdrift`method to forecast non-seasonal component
+```{r  }
+
+writingBC <- stlf(writing, 
+                  method='rwdrift', 
+                  robust=TRUE, 
+                  lambda = BoxCox.lambda(writing)
+                  
+                  )
+autoplot(writingBC)
+
+```
+
+## Question 8
+Use`stlf()`to produce forecasts of the`fancy`series with either`method="naive"`or`method="rwdrift"`,whichever is most appropriate. Use the`lambda`argument if you think a Box-Cox transformation is required.
+
+```{r  }
+stlf.fancy <- stlf(fancy,
+                   robust = TRUE,
+                   lambda = BoxCox.lambda(fancy),
+                   method = "rwdrift")
+autoplot(stlf.fancy)
+```
+
+because of the Box-Cox transformation the intervals increase increases highly 
+
+
