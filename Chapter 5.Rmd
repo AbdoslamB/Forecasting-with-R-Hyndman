@@ -1,13 +1,13 @@
 # Chapter 5 ,  Rob J Hyndman Book Exersiseis 
 
-
+(This is an R markdown file you can use Rstudio to run the code)
 ## Chapter 5 (Time Series Regression Models) 
 
 ## Question 1
 
 Daily electricity demand for Victoria, Australia, during 2014 is contained in elecdaily. The data for the first 20 days can be obtained as follows.
 
-```{r Backages }
+```{r Backage }
 library(fpp2)
 
 ```
