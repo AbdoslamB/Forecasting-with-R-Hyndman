@@ -92,7 +92,6 @@ Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose
 
 
 
-
 ```{r  }
 library(seasonal)
 library(readr)
