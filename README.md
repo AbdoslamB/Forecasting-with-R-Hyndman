@@ -13,3 +13,6 @@ In this repository I will try to solve the Rob J Hyndman and George Athanasopoul
    
   * Chapter7.rmd\
    *Exponential smoothing*
+
+  * Chapter8.rmd<br/>
+  
