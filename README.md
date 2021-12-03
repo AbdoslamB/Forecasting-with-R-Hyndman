@@ -13,4 +13,4 @@ In this repository I will try to solve the Rob J Hyndman and George Athanasopoul
    *Exponential smoothing*
 
   * Chapter8.rmd<br/>
-  
+   *ARIMA models*
