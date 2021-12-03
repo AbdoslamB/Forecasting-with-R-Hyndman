@@ -35,14 +35,11 @@ decompose.plastics
 `#` Question 2 (c)
 Yes , the results support the graphical interpretation from part a , we can see seasonal positive trends in the data  
 
-
 `#` Question 2 (d)
 Compute and plot the seasonally adjusted data.
 ```{r  }
 autoplot(plastics, main="Monthly sales of Product A", ylab="Sales (Thousands)", xlab="Year") + autolayer(snaive(plastics, h=30), series="Seasonal Naïve", PI=FALSE) + autolayer(naive(plastics, h=30), series="Naïve", PI=FALSE) + autolayer(rwf(plastics, h=30), series="Drift", PI=FALSE)
 ```
-
-
 
 `#` Question 2 (e)
 ```{r  }
@@ -62,7 +59,6 @@ autoplot(plastics_new, series = "Data") +
   scale_color_manual(values=c("gray", "blue", "red"),
                      breaks=c("Data", "Seasonally Adjusted", "Trend"))
 ```
-
 The outlier has small effect in the trend but also it has huge effect in the adjusted data
 
 
@@ -84,14 +80,11 @@ autoplot(plastics_new, series = "Data") +
   scale_color_manual(values=c("gray", "blue", "red"),
                      breaks=c("Data", "Seasonally Adjusted", "Trend"))
 ```
-
 the effect to trend decreases when the outlier been more closer to the end in the plot. 
+
 
 ## Question 3
 Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose the series using X11. Does it reveal any outliers, or unusual features that you had not noticed previously?
-
-
-
 ```{r  }
 library(seasonal)
 library(readr)
@@ -140,7 +133,6 @@ ggseasonplot(cangas, main="Seasonal Plot: Monthly Gas Production", ylab="Gas Pro
 When we look at the oil production , we can see that the demand increases closer to the winter months , and that could due to the high use of heating.
 
 
-
 `#` Question 5 (b)
 Do an STL decomposition of the data. You will need to choose s.window to allow for the changing shape of the seasonal component.
 ```{r  }
@@ -150,7 +142,7 @@ stl_cangas <- stl(cangas, s.window = 13,
 autoplot(stl_cangas) 
 
 ```
-we can see that the seasonality increased in 1980s but it decreases after that in in 1990s 
+We can see that the seasonality increased in 1980s but it decreases after that in in 1990s 
 
 ## Question 6
 
@@ -212,7 +204,6 @@ stl.changing.st %>% seasadj() %>% naive() %>% autoplot() +
   ggtitle(label = "Naive forecast of seasonally adjusted brick data",
           subtitle = "after STL decomposition with changing seasonality")
 ```
-
 The range of the decomposed  with changing seasonalit alsmost similer to the decomposed  with fixed seasonality.
 
 `#` Question 6 (d)
@@ -237,7 +228,6 @@ brick.tt <-  stlf(bricksq, robust = TRUE)
 autoplot(brick.tt)
 checkresiduals(brick.tt)
 ```
-
 we can see there are still correlation  even with the robust
 
 
@@ -303,7 +293,6 @@ stlf.fancy <- stlf(fancy,
                    method = "rwdrift")
 autoplot(stlf.fancy)
 ```
-
 because of the Box-Cox transformation the intervals increase increases highly 
 
 
