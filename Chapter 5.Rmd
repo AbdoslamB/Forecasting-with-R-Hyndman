@@ -18,7 +18,6 @@ str(daily20)
 
 `#` Question 1(a) Plot the data and find the regression model for Demand with temperature as an explanatory variable. Why is there a positive relationship?
 
-
 ```{r plotthe data & summary }
 autoplot(daily20, main="Daily electricity demand for Victoria, Australia (2014)")
 
@@ -28,18 +27,15 @@ summary(fit_dem)
 ```
 We can see a positive relationship between the demand for electricity and the temperature. When we get closer to time 3, the demand for electricity increases, and the temperature increases too. It seems the positive relationship happens because people use the air-conditioner more when the weather is hotter, which consumes more electricity.
 
-
 `#` Question 1(b) Produce a residual plot. Is the model adequate? Are there any outliers or influential observations?
 
 ```{r plot the fitting }
 plot(lm(Demand ~ Temperature, data = daily20))
 ```
 
-
 ```{r  checkresiduals}
 checkresiduals(fit_dem$residuals)
 ```
-
 
 From the residual check plot, I think this model is adequate, their residuals aren't correlated with each other, there are some outlines, but most of the data sets fall in the range, and the residual is not skewed to the right or left.
 
@@ -71,10 +67,6 @@ We can observe that the forecast shows the electricity demand will increase beca
 
 `#` Question 1(e) Plot Demand vs Temperature for all of the available data in electrically. What does this say about your model?
 
-
-
-
-
 ```{r  }
 elecdaily %>%
   as.data.frame() %>%
@@ -86,7 +78,6 @@ elecdaily %>%
     geom_smooth(method="lm", se=FALSE)
 ```
 While our model forecast increases demand over time, the all data plot is different from our 20 days data plot, so that could tell our model could be good for the first 20 days, but it couldn't be good enough for the total data.
-
 
 
 ## Question 2
@@ -116,7 +107,6 @@ t$coefficients[2]
 
 ```
 The winning times have been decreasing at an average rate of ~ 0.065 seconds per year.
-
 
 
 `#` Question 2(c) Plot the residuals against the year. What does this indicate about the suitability of the fitted line?
@@ -169,7 +159,6 @@ What we see in the `easter(ausbeer)` is the quarterly Australian beer production
 ## Question 4
 Express y as a function of x and show that the coefficient β1 is the elasticity coefficient.
 
-
 >log(y) = β0 + β1log(x) + ε
 >
 > β1log(x) = log(y) - β0 - e
@@ -177,7 +166,6 @@ Express y as a function of x and show that the coefficient β1 is the elasticity
 >β1 = (log(y) - β0 - e) / log(x)
 
 As we see β1 is a elasticity coefficient beaus it is a ratio of stranger changes in variable (y) to the predictor (x), so if the (x) change by one unit the (y) changes by β1.
-
 
 ## Question 5
 The data set fancy concerns the monthly sales figures of a shop which opened in January 1987 and sells gifts, souvenirs, and novelties. The shop is situated on the wharf at a beach resort town in Queensland, Australia. The sales volume varies with the seasonal population of tourists. There is a large influx of visitors to the town at Christmas and for the local surfing festival, held every March since 1988. Over time, the shop has expanded its premises, range of products, and staff
@@ -193,7 +181,6 @@ There could be heteroscedasticity across the residuals so the variance of the re
 
 `#` Question 5(c) Use R to fit a regression model to the logarithms of these sales data with a linear trend, seasonal dummies and a “surfing festival” dummy variable.
 
-
 ```{r  }
 # we making "surfing_festival" as dummy variable using time index in fancy. 1 if the year is equal to or above 1988 and the month is March.
 Time <- time(fancy)
@@ -207,7 +194,6 @@ for(i in 1:length(Time)){
     surfing_festival[i] <- 0
   }
 }
-
 
 # we Use BoxCox power transformation prior to regression formula
 tslm.log.fancy <- tslm(
@@ -238,9 +224,7 @@ cbind.data.frame(
              y = Residuals)) +
     geom_boxplot()
 ```
-
 boxplot function can't aggregate factor type data, which means it is  difficult to see any box, so The result would be looked like a scatter plot.
-
 
 `#` Question 5(f) 
 What do the values of the coefficients tell you about each variable?
@@ -257,10 +241,6 @@ checkresiduals(tslm.log.fancy)
 ```
 
 The residuals could be correlated with each other. The p-value = 0.002494 lower than 0.5 thats mean residuals are not white noise so probably additional covariates are needed. Autocorrelation plot shows a significant spike at many lags.
-
-
-
-
 
 `#` Question 5(h) Regardless of your answers to the above questions, use your regression model to predict the monthly sales for 1994, 1995, and 1996. Produce prediction intervals for each of your forecasts.
 ```{r  }
@@ -316,7 +296,8 @@ CV(gasoltrend)
 `#` Question 6(c) Check the residuals of the final model using the checkresiduals() function. Even though the residuals fail the correlation tests, the results are probably not severe enough to make much difference to the forecasts and prediction intervals. (Note that the correlations are relatively small, even though they are significant.)
 ```{r  }
 tslm.fitK.2004 <- tslm(
-  gasoline.2004 ~ trend + fourier(
+  gasoline.2004 ~ trend + 
+  fourier(
     gasoline.2004, 
     K = 10
     )
@@ -386,8 +367,8 @@ fc.tslm.pw.huron <- forecast(
 `#` Question 7(c) 
 Generate forecasts from these two models for the period up to 1980 and comment on these.
 ```{r  }
-autoplot(huron)+
-  autolayer(fc.tslm.huron, series='Linear', PI=FALSE)+
+autoplot(huron) +
+  autolayer(fc.tslm.huron, series='Linear', PI=FALSE) +
   autolayer(fc.tslm.pw.huron, series='Piecewise',PI=FALSE)
 ```
 
