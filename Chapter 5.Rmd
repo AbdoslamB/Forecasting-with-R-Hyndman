@@ -313,10 +313,8 @@ fc <- forecast(tslm.fitK.2004,
                  fourier(gasoline.2004,
                          K=10,
                          h=80)))
-
-
-
 ```
+
 `#` Question 6(e) 
 Plot the forecasts along with the actual data for 2005. What do you find?
 ```{r  }
@@ -356,13 +354,11 @@ newdata <- cbind(t=t_new,
                  t.P=t.p.new) %>%
   as.data.frame()
 
-
 fc.tslm.pw.huron <- forecast(
   tslm.pw,
   newdata = newdata
   )
 ```
-
 
 `#` Question 7(c) 
 Generate forecasts from these two models for the period up to 1980 and comment on these.
