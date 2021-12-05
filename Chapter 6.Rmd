@@ -61,7 +61,6 @@ autoplot(plastics_new, series = "Data") +
 ```
 The outlier has small effect in the trend but also it has huge effect in the adjusted data
 
-
 `#` Question 2 (F)
 Does it make any difference if the outlier is near the end rather than in the middle of the time series?
 ```{r  }
@@ -81,7 +80,6 @@ autoplot(plastics_new, series = "Data") +
                      breaks=c("Data", "Seasonally Adjusted", "Trend"))
 ```
 the effect to trend decreases when the outlier been more closer to the end in the plot. 
-
 
 ## Question 3
 Recall your retail time series data (from Exercise 3 in Section 2.10). Decompose the series using X11. Does it reveal any outliers, or unusual features that you had not noticed previously?
@@ -116,7 +114,6 @@ Is the recession of 1991/1992 visible in the estimated components?
 
 
 There are highly change in these data period , if these data was estimated usually it will follow the other data and is will appear more smoother than what we see.
-
 
 ## Question 5
 This exercise uses the cangas data (monthly Canadian gas production in billions of cubic metres, January 1960 – February 2005).
@@ -246,7 +243,6 @@ snaive_brick
 stlf.brick
 ```
 
-
 ```{r  }
 autoplot(bricksq, series = "Original data") +
   geom_line(size = 1) +
@@ -280,7 +276,6 @@ writingBC <- stlf(writing,
                   
                   )
 autoplot(writingBC)
-
 ```
 
 ## Question 8
