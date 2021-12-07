@@ -225,7 +225,7 @@ brick.tt <-  stlf(bricksq, robust = TRUE)
 autoplot(brick.tt)
 checkresiduals(brick.tt)
 ```
-we can see there are still correlation  even with the robust
+We can see there are still correlation  even with the robust
 
 
 `#` Question 6 (g)
