@@ -36,7 +36,6 @@ plot(lm(Demand ~ Temperature, data = daily20))
 ```{r  checkresiduals}
 checkresiduals(fit_dem$residuals)
 ```
-
 From the residual check plot, I think this model is adequate, their residuals aren't correlated with each other, there are some outlines, but most of the data sets fall in the range, and the residual is not skewed to the right or left.
 
 `#` Question 1(c) Use the model to forecast the electricity demand that you would expect for the next day if the maximum temperature was 15∘, and compare it with the forecast if the with maximum temperature was 35∘.Do you believe these forecasts?
