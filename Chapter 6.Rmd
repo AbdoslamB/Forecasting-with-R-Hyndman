@@ -25,7 +25,7 @@ The  data plot shows that there are seasonal fluctuations and there are some upw
 
 `#` Question 2 (b)
 Use a classical multiplicative decomposition to calculate the trend-cycle and seasonal indices
-```{r  }
+```{r }
 decompose.plastics <- plastics %>% decompose(type="multiplicative",  series="Trend") %>%
   autoplot() + xlab("Year") +
   ggtitle("Monthly sales of Product A")
@@ -37,7 +37,7 @@ Yes , the results support the graphical interpretation from part a , we can see 
 
 `#` Question 2 (d)
 Compute and plot the seasonally adjusted data.
-```{r  }
+```{r }
 autoplot(plastics, main="Monthly sales of Product A", ylab="Sales (Thousands)", xlab="Year") + autolayer(snaive(plastics, h=30), series="Seasonal Naïve", PI=FALSE) + autolayer(naive(plastics, h=30), series="Naïve", PI=FALSE) + autolayer(rwf(plastics, h=30), series="Drift", PI=FALSE)
 ```
 
@@ -120,7 +120,7 @@ This exercise uses the cangas data (monthly Canadian gas production in billions 
 
 `#` Question 5 (a)
 Plot the data using autoplot(), ggsubseriesplot() and ggseasonplot() to look at the effect of the changing seasonality over time. What do you think is causing it to change so much?
-```{r  }
+```{r }
 autoplot(cangas, main="Monthly Gas Production", ylab="Gas Production", xlab="Year")
 
 ggsubseriesplot(cangas, main="Monthly Gas Production", ylab="Gas Production")
@@ -213,7 +213,7 @@ autoplot(brick.t)
 
 `#` Question 6 (e)
 Do the residuals look uncorrelated?
-```{r  }
+```{r }
 checkresiduals(brick.t)
 ```
 residuals are correlated with each other 
