@@ -92,6 +92,7 @@ ts.retail <- ts(tute1[,"Sales"],
                 frequency=12, 
                 start=c(1982,4))
 
+
 autoplot(ts_retail)
 
 retailx11 <- seas(ts.retail, x11="")
