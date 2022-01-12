@@ -9,7 +9,7 @@ In this repository I will try to solve the Rob J Hyndman and George Athanasopoul
  * [Chapter6.rmd](https://github.com/AbdoslamB/Forecasting-with-R-Hyndman/blob/e3c66504b9191ab85fc2a07d03d639533a3b45c4/Chapter%206.Rmd)\
    *Time series decomposition*
    
-  * Chapter7.rmd\
+  * [Chapter7.rmd](https://github.com/AbdoslamB/Forecasting-with-R-Hyndman/blob/main/Chapter%207.R)\
    *Exponential smoothing*
 
   * Chapter8.rmd\
