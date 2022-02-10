@@ -142,7 +142,6 @@ autoplot(books[, "Hardcover"]) +
   autolayer(holt_hardcover)
 
 #(b) Compare the RMSE measures of Holt's method for the two series to those of simple exponential smoothing in the previous question. (Remember that Holt's method is using one more parameter than SES.) Discuss the merits of the two forecasting methods for these data sets.
-
 s_paperback <- sqrt(mean(holt_paperback$residuals^2))
 s_hardcover <- sqrt(mean(holt_hardcover$residuals^2))
 s_paperback
@@ -252,7 +251,7 @@ sqrt(mean(error_ets_AAdM_retail^2, na.rm = TRUE))
 
 checkresiduals(ets_AAdM_retail)
 
-# Question 8(d) Now find the test set RMSE, while training the model to the end of 2010. Can you beat the seasonal naïve approach from Exercise 7 in Section 3.7?
+# Question 8(d) Now find the test set RMSE, while training the model to the end of 2010. Can you beat the seasonal naÃ¯ve approach from Exercise 7 in Section 3.7?
 ts_retail_train <- window(ts_retail,
                           end = c(2010, 12))
 ts_retail_test <- window(ts_retail,
